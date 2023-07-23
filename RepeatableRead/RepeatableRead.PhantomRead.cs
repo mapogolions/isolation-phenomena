@@ -14,30 +14,27 @@ public partial class RepeatableRead
         var t1 = new Thread(() =>
         {
             var threadId = Thread.CurrentThread.ManagedThreadId;
-            var t = _repo.TransactionScope(async (transaction, cancellation) =>
+            _repo.TransactionScope(async (transaction, cancellation) =>
             {
-                var albums1 = await _repo.GetAsync(transaction, cancellation);
-                Console.WriteLine($"[{threadId}] {string.Join(", ", albums1.Select(x => x.Id))}");
+                var total1 = await _repo.TotalCostAsync(transaction, cancellation);
+                Console.WriteLine($"[{threadId}] Total Cost: {total1}");
 
                 readSyncEvent.Set();
                 writeAsyncEvent.WaitOne();
 
-                var albums2 = await _repo.GetAsync(transaction, cancellation); // Phantom read
-                Console.WriteLine($"[{threadId}] {string.Join(", ", albums2.Select(x => x.Id))}");
-            }, IsolationLevel.RepeatableRead, cts.Token);
-
-            t.GetAwaiter().GetResult();
+                var total2 = await _repo.TotalCostAsync(transaction, cancellation); // Phantom
+                Console.WriteLine($"[{threadId}] Total Cost: {total2}");
+            }, IsolationLevel.RepeatableRead, cts.Token).GetAwaiter().GetResult();
         });
 
         var t2 = new Thread(() =>
         {
             var threadId = Thread.CurrentThread.ManagedThreadId;
-
-            var t = _repo.TransactionScope(async (transaction, cancellation) =>
+            _repo.TransactionScope(async (transaction, cancellation) =>
             {
                 readSyncEvent.WaitOne();
 
-                var album = new Album { Title = "Test", Artist = "Test", Price = 0.03m };
+                var album = new Album { Title = "Phantom", Artist = "Phantom", Price = 200.01m };
                 var added = await _repo.AddAsync(album, transaction, cancellation);
                 Console.WriteLine($"[{threadId}] {added} Album added");
 
@@ -45,9 +42,7 @@ public partial class RepeatableRead
                 Console.WriteLine($"[{threadId}] transaction committed");
 
                 writeAsyncEvent.Set(); // send signal
-            }, IsolationLevel.RepeatableRead, cts.Token);
-
-            t.GetAwaiter().GetResult();
+            }, IsolationLevel.RepeatableRead, cts.Token).GetAwaiter().GetResult();
         });
 
         t1.Start();

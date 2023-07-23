@@ -140,4 +140,23 @@ public class AlbumRepository : BaseRepository, IAlbumRepository
             return command.ExecuteNonQueryAsync(cancellationToken);
         }
     }
+
+    public Task<decimal> TotalCostAsync(CancellationToken cancellationToken)
+    {
+        return this.TransactionScope(
+            (transaction, cancellation) => TotalCostAsync(transaction, cancellation),
+            IsolationLevel.ReadCommitted,
+            cancellationToken);
+    }
+
+    public async Task<decimal> TotalCostAsync(DbTransaction transaction, CancellationToken cancellationToken)
+    {
+        using (var command = transaction.Connection!.CreateCommand())
+        {
+            command.Transaction = transaction;
+            command.CommandText = "SELECT SUM(price) FROM Album";
+            object? result = await command.ExecuteScalarAsync(cancellationToken);
+            return result is decimal total  ? total : 0m;
+        }
+    }
 }
