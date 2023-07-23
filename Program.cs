@@ -4,6 +4,7 @@ using IsoLevelsAdoNet;
 using IsoLevelsAdoNet.Repos;
 using IsoLevelsAdoNet.Phenomena;
 using Microsoft.Extensions.Configuration;
+using System.Data;
 
 
 // // ReadUncommmitted (Dirty Read)
@@ -28,11 +29,25 @@ using Microsoft.Extensions.Configuration;
 // }
 
 
-// Dirty Read Phenomena
+// // Dirty Read
+// {
+//     var phenomen = new DirtyReadPhenomen(BuildRepository());
+//     phenomen.Demo(); // reproduce the problem
+//     // phenomen.Demo(System.Data.IsolationLevel.ReadCommitted); // how ReadCommited level solves the problem
+// }
+
+// // Non Repeatable Read
+// {
+//     var phenomen = new NonRepeatableReadPhenomen(BuildRepository());
+//     phenomen.Demo(); // reproduce the problem
+//     // phenomen.Demo(System.Data.IsolationLevel.RepeatableRead); // how RepeatableRead solves the problem
+// }
+
+// Phantom Read
 {
-    var phenomen = new DirtyReadPhenomen(BuildRepository());
-    phenomen.Demo(); // reproduce problem
-    // phenomen.Demo(System.Data.IsolationLevel.ReadCommitted); // how ReadCommited level solves the problem
+    var phenomen = new PhantomReadPhenomen(BuildRepository());
+    phenomen.Demo(IsolationLevel.RepeatableRead); // reporoduce `Phantom Read`
+    // phenomen.Demo(IsolationLevel.Serializable);
 }
 
 

@@ -1,11 +1,19 @@
 using System.Data;
 using IsoLevelsAdoNet.Models;
+using IsoLevelsAdoNet.Repos;
 
-namespace IsoLevelsAdoNet;
+namespace IsoLevelsAdoNet.Phenomena;
 
-public partial class RepeatableRead
+public class PhantomReadPhenomen : IPhenomen
 {
-    public void PhantomRead()
+    private readonly IAlbumRepository _repo;
+
+    public PhantomReadPhenomen(IAlbumRepository repo)
+    {
+        _repo = repo ?? throw new ArgumentNullException(nameof(repo));
+    }
+
+    public void Demo(IsolationLevel iso = IsolationLevel.RepeatableRead)
     {
         using var cts = new CancellationTokenSource();
         var readSyncEvent = new ManualResetEvent(false);
@@ -20,11 +28,12 @@ public partial class RepeatableRead
                 Console.WriteLine($"[{threadId}] Total Cost: {total1}");
 
                 readSyncEvent.Set();
-                writeAsyncEvent.WaitOne();
+                // use Timeout to prevent deadlock if iso is `Serializable`
+                writeAsyncEvent.WaitOne(TimeSpan.FromSeconds(5));
 
                 var total2 = await _repo.TotalCostAsync(transaction, cancellation); // Phantom
                 Console.WriteLine($"[{threadId}] Total Cost: {total2}");
-            }, IsolationLevel.RepeatableRead, cts.Token).GetAwaiter().GetResult();
+            }, iso, cts.Token).GetAwaiter().GetResult();
         });
 
         var t2 = new Thread(() =>
@@ -42,7 +51,7 @@ public partial class RepeatableRead
                 Console.WriteLine($"[{threadId}] transaction committed");
 
                 writeAsyncEvent.Set(); // send signal
-            }, IsolationLevel.RepeatableRead, cts.Token).GetAwaiter().GetResult();
+            }, iso, cts.Token).GetAwaiter().GetResult();
         });
 
         t1.Start();

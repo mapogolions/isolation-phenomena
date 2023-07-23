@@ -1,10 +1,18 @@
 using System.Data;
+using IsoLevelsAdoNet.Repos;
 
-namespace IsoLevelsAdoNet;
+namespace IsoLevelsAdoNet.Phenomena;
 
-public partial class ReadCommitted
+public class NonRepeatableReadPhenomen : IPhenomen
 {
-    public void NonRepeatableRead()
+    private readonly IAlbumRepository _repo;
+
+    public NonRepeatableReadPhenomen(IAlbumRepository repo)
+    {
+        _repo = repo ?? throw new ArgumentNullException(nameof(repo));
+    }
+
+    public void Demo(IsolationLevel iso = IsolationLevel.ReadCommitted)
     {
         using var cts = new CancellationTokenSource();
         var readSyncEvent = new ManualResetEvent(false);
@@ -15,16 +23,21 @@ public partial class ReadCommitted
 
             var t = _repo.TransactionScope(async (transaction, cancellation) =>
             {
+                // read
                 var album = await _repo.GetAsync(1, transaction, cts.Token);
                 Console.WriteLine($"[{containerId}] Read {album}");
+
+                // update
                 album!.Price += 0.01m;
                 var updated = await _repo.UpdateAsync(album, transaction, cts.Token);
                 Console.WriteLine($"[{containerId}] {updated} Album update");
+
+                // commit
                 await transaction.CommitAsync(cts.Token);
                 Console.WriteLine($"[{containerId}] transaction committed");
 
                 readSyncEvent.Set();
-            }, IsolationLevel.ReadCommitted, cts.Token);
+            }, iso, cts.Token);
 
             t.GetAwaiter().GetResult();
         });
@@ -34,14 +47,17 @@ public partial class ReadCommitted
             var containerId = Thread.CurrentThread.ManagedThreadId;
             var t = _repo.TransactionScope(async (transaction, cancellation) =>
             {
+                // read
                 var album1 = await _repo.GetAsync(1, transaction, cts.Token); // Result 1: NON REPEATABLE READ
                 Console.WriteLine($"[{containerId}] Read {album1}");
 
-                readSyncEvent.WaitOne();
+                // use Timeout to prevent deadlock if iso is RepeableRead
+                readSyncEvent.WaitOne(TimeSpan.FromSeconds(5));
 
+                // read again
                 var album2 = await _repo.GetAsync(1, transaction, cts.Token); // Result 2: Result 1 != Result2
                 Console.WriteLine($"[{containerId}] Read {album2}");
-            }, IsolationLevel.ReadCommitted, cts.Token);
+            }, iso, cts.Token);
 
             t.GetAwaiter().GetResult();
         });
