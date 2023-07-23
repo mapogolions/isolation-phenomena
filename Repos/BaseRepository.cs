@@ -42,4 +42,25 @@ public class BaseRepository : IBaseRepository
             }
         }
     }
+
+    protected Func<DbTransaction, CancellationToken, Task<T>> AutoCommit<T>(Func<DbTransaction, CancellationToken, Task<T>> fn)
+    {
+        ArgumentNullException.ThrowIfNull(fn);
+        return async (transaction, cancellation) =>
+        {
+            var res = await fn(transaction, cancellation);
+            await transaction.CommitAsync(cancellation);
+            return res;
+        };
+    }
+
+    protected Func<DbTransaction, CancellationToken, Task> AutoCommit<T>(Func<DbTransaction, CancellationToken, Task> fn)
+    {
+        ArgumentNullException.ThrowIfNull(fn);
+        return async (transaction, cancellation) =>
+        {
+            await fn(transaction, cancellation);
+            await transaction.CommitAsync(cancellation);
+        };
+    }
 }

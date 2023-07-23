@@ -70,6 +70,7 @@ ScaffoldingReadMe.txt
 
 # StyleCop
 StyleCopReport.xml
+.theory
 
 # Files built by Visual Studio
 *_i.c

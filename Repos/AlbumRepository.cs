@@ -46,15 +46,48 @@ public class AlbumRepository : BaseRepository, IAlbumRepository
             return album;
         }
     }
+
+    public Task<IEnumerable<Album>> GetAsync(CancellationToken cancellationToken)
+    {
+        return this.TransactionScope(GetAsync, IsolationLevel.ReadCommitted, cancellationToken);
+    }
+
+    public async Task<IEnumerable<Album>> GetAsync(DbTransaction transaction, CancellationToken cancellationToken)
+    {
+        using (var command = transaction.Connection!.CreateCommand())
+        {
+            command.Transaction = transaction;
+            command.CommandText = "SELECT * FROM Album";
+            using (var reader = await command.ExecuteReaderAsync(cancellationToken))
+            {
+                var albums = new List<Album>();
+                if (reader.HasRows)
+                {
+                    while (await reader.ReadAsync(cancellationToken))
+                    {
+                        albums.Add(new Album
+                        {
+                            Id = reader.GetFieldValue<int>(0),
+                            Title = reader.GetFieldValue<string>(1),
+                            Artist = reader.GetFieldValue<string>(2),
+                            Price = reader.GetFieldValue<decimal>(3)
+                        });
+                    }
+                }
+                return albums;
+            }
+        }
+    }
+
     public Task<int> AddAsync(Album album, CancellationToken cancellationToken)
     {
         return this.TransactionScope(
-            (transaction, cancellation) => AddAsync(album, transaction, cancellation),
+            AutoCommit((transaction, cancellation) => AddAsync(album, transaction, cancellation)),
             IsolationLevel.ReadCommitted,
             cancellationToken);
     }
 
-    public Task<int> AddAsync(Album album, DbTransaction transaction, CancellationToken cancellationToken)
+    public async Task<int> AddAsync(Album album, DbTransaction transaction, CancellationToken cancellationToken)
     {
         using (var command = transaction.Connection!.CreateCommand())
         {
@@ -63,14 +96,14 @@ public class AlbumRepository : BaseRepository, IAlbumRepository
             command.Parameters.Add(new SqlParameter("@Title", album.Title));
             command.Parameters.Add(new SqlParameter("@Artist", album.Artist));
             command.Parameters.Add(new SqlParameter("@Price", album.Price));
-            return command.ExecuteNonQueryAsync(cancellationToken);
+            return await command.ExecuteNonQueryAsync(cancellationToken);
         }
     }
 
     public Task<int> UpdateAsync(Album album, CancellationToken cancellationToken)
     {
         return this.TransactionScope(
-            (transaction, cancellation) => UpdateAsync(album, transaction, cancellation),
+            AutoCommit((transaction, cancellation) => UpdateAsync(album, transaction, cancellation)),
             IsolationLevel.ReadCommitted,
             cancellationToken);
     }
