@@ -2,6 +2,7 @@ using System.Data.SqlClient;
 using System.Reflection;
 using IsoLevelsAdoNet;
 using IsoLevelsAdoNet.Repos;
+using IsoLevelsAdoNet.Phenomena;
 using Microsoft.Extensions.Configuration;
 
 
@@ -18,12 +19,20 @@ using Microsoft.Extensions.Configuration;
 //     // sample.NonRepeatableRead();
 // }
 
-// RepetableRead ()
+// // RepetableRead ()
+// {
+//     var sample = new RepeatableRead(BuildRepository());
+//     // sample.DeadLock();
+//     // sample.PreventNonRepetableRead();
+//     sample.PhantomRead();
+// }
+
+
+// Dirty Read Phenomena
 {
-    var sample = new RepeatableRead(BuildRepository());
-    // sample.DeadLock();
-    // sample.PreventNonRepetableRead();
-    sample.PhantomRead();
+    var phenomen = new DirtyReadPhenomen(BuildRepository());
+    phenomen.Demo(); // reproduce problem
+    // phenomen.Demo(System.Data.IsolationLevel.ReadCommitted); // how ReadCommited level solves the problem
 }
 
 
