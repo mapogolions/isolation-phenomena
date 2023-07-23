@@ -5,11 +5,11 @@ using IsoLevelsAdoNet.Repos;
 using Microsoft.Extensions.Configuration;
 
 
-// ReadUncommmitted (Dirty Read)
-{
-    var sample = new ReadUncommitted(BuildRepository());
-    sample.DirtyRead();
-}
+// // ReadUncommmitted (Dirty Read)
+// {
+//     var sample = new ReadUncommitted(BuildRepository());
+//     sample.DirtyRead();
+// }
 
 // // ReadCommmited (Non-Repeatable Read)
 // {
@@ -17,6 +17,13 @@ using Microsoft.Extensions.Configuration;
 //     sample.PreventDirtyRead();
 //     // sample.NonRepeatableRead();
 // }
+
+// RepetableRead ()
+{
+    var sample = new RepeatableRead(BuildRepository());
+    // sample.DeadLock();
+    sample.PreventNonRepetableRead();
+}
 
 
 IAlbumRepository BuildRepository()
