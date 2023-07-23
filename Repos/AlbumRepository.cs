@@ -1,0 +1,91 @@
+using System.Data;
+using System.Data.Common;
+using System.Data.SqlClient;
+using IsoLevelsAdoNet.Models;
+
+namespace IsoLevelsAdoNet.Repos;
+
+
+public class AlbumRepository : BaseRepository, IAlbumRepository
+{
+    public AlbumRepository(
+        DbConnectionFactoryDelegate connectionFactory) : base(connectionFactory)
+    {
+    }
+
+    public Task<Album?> GetAsync(int id, CancellationToken cancellationToken)
+    {
+        return this.TransactionScope(
+            (transaction, cancellation) => GetAsync(id, transaction, cancellation),
+            IsolationLevel.ReadCommitted,
+            cancellationToken);
+    }
+
+    public async Task<Album?> GetAsync(int id, DbTransaction transaction, CancellationToken cancellationToken)
+    {
+        using (var command = transaction.Connection!.CreateCommand())
+        {
+            command.Transaction = transaction;
+            command.CommandText = "SELECT * FROM Album Where Id = @Id";
+            command.Parameters.Add(new SqlParameter("@Id", id));
+            using var reader = await command.ExecuteReaderAsync(cancellationToken);
+            Album? album = null;
+            if (reader.HasRows)
+            {
+                if (await reader.ReadAsync(cancellationToken))
+                {
+                    album = new Album
+                    {
+                        Id = reader.GetFieldValue<int>(0),
+                        Title = reader.GetFieldValue<string>(1),
+                        Artist = reader.GetFieldValue<string>(2),
+                        Price = reader.GetFieldValue<decimal>(3)
+                    };
+                }
+            }
+            return album;
+        }
+    }
+    public Task<int> AddAsync(Album album, CancellationToken cancellationToken)
+    {
+        return this.TransactionScope(
+            (transaction, cancellation) => AddAsync(album, transaction, cancellation),
+            IsolationLevel.ReadCommitted,
+            cancellationToken);
+    }
+
+    public Task<int> AddAsync(Album album, DbTransaction transaction, CancellationToken cancellationToken)
+    {
+        using (var command = transaction.Connection!.CreateCommand())
+        {
+            command.CommandText = "INSERT INTO Album (Title, Artist, Price) VALUES (@Title, @Artist, @Price)";
+            command.Transaction = transaction;
+            command.Parameters.Add(new SqlParameter("@Title", album.Title));
+            command.Parameters.Add(new SqlParameter("@Artist", album.Artist));
+            command.Parameters.Add(new SqlParameter("@Price", album.Price));
+            return command.ExecuteNonQueryAsync(cancellationToken);
+        }
+    }
+
+    public Task<int> UpdateAsync(Album album, CancellationToken cancellationToken)
+    {
+        return this.TransactionScope(
+            (transaction, cancellation) => UpdateAsync(album, transaction, cancellation),
+            IsolationLevel.ReadCommitted,
+            cancellationToken);
+    }
+
+    public Task<int> UpdateAsync(Album album, DbTransaction transaction, CancellationToken cancellationToken)
+    {
+        using (var command = transaction.Connection!.CreateCommand())
+        {
+            command.CommandText = "UPDATE Album SET Title = @Title, Artist = @Artist, Price = @Price WHERE Id = @Id";
+            command.Transaction = transaction;
+            command.Parameters.Add(new SqlParameter("@Id", album.Id));
+            command.Parameters.Add(new SqlParameter("@Title", album.Title));
+            command.Parameters.Add(new SqlParameter("@Artist", album.Artist));
+            command.Parameters.Add(new SqlParameter("@Price", album.Price));
+            return command.ExecuteNonQueryAsync(cancellationToken);
+        }
+    }
+}
