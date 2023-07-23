@@ -1,41 +1,20 @@
-```sql
-create database IsoLevelsAdoNet;
+### Isolation Phenomena
 
-use IsoLevelsAdoNet;
+Demo of various isolation phenomena
 
-create table Album (
-    Id int Identity PRIMARY KEY,
-    Title varchar(128) not null,
-    Artist varchar(255) not null,
-    Price decimal(5, 2) not null
-);
+#### How to use
 
-insert into Album
-    (Title, Artist, Price)
-values
-    ('Blue Train', 'John Coltrane', 56.99),
-    ('Giant Steps', 'John Coltrane', 63.99),
-    ('Jeru', 'Gerry Mulligan', 17.99),
-    ('Sarah Vaughan', 'Sarah Vaughan', 34.98)
+1) Create Db using [Script](./script.sql)
+2) Configure connection string
+```sh
+mkdir -p ~/.microsoft/usersecrets/2d57e6d1-388f-4169-bf7a-d0597639b88a
+cd ~/.microsoft/usersecrets/2d57e6d1-388f-4169-bf7a-d0597639b88a
+touch secrets.json
 ```
 
-### Dirty Read (ReadUncommitted)
+secrets.json
 ```
-{begin}             {begin}
-    update
-                        read (DIRTY READ)
-    rollback
-{end}
-```
-
-### Non Repeatable Read (ReadCommitted)
-
-```
-{begin}             {begin}
-    read
-                        read (val_1)
-    update
-    commit
-                        read (val_2) // (NON REPEATABLE READ) val_1 != val_2
-{end}               {end}
+"ConnectionStrings": {
+        "IsolationPhenomena": "<your-connection-string>"
+    }
 ```

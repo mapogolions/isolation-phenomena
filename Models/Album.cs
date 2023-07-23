@@ -1,4 +1,4 @@
-namespace IsoLevelsAdoNet.Models;
+namespace IsolationPhenomena.Models;
 
 public class Album
 {

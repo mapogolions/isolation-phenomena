@@ -1,8 +1,8 @@
 using System.Data;
-using IsoLevelsAdoNet.Models;
-using IsoLevelsAdoNet.Repos;
+using IsolationPhenomena.Models;
+using IsolationPhenomena.Repos;
 
-namespace IsoLevelsAdoNet.Phenomena;
+namespace IsolationPhenomena.Phenomena;
 
 public class PhantomReadPhenomenon : IPhenomenon
 {

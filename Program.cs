@@ -1,8 +1,8 @@
 using System.Data.SqlClient;
 using System.Reflection;
-using IsoLevelsAdoNet;
-using IsoLevelsAdoNet.Repos;
-using IsoLevelsAdoNet.Phenomena;
+using IsolationPhenomena;
+using IsolationPhenomena.Repos;
+using IsolationPhenomena.Phenomena;
 using Microsoft.Extensions.Configuration;
 using System.Data;
 
@@ -33,7 +33,7 @@ IAlbumRepository BuildRepository()
 {
     var configuration = BuildConfiguration();
     DbConnectionFactoryDelegate factory =
-        () => new SqlConnection(configuration.GetConnectionString("IsoLevelsAdoNet"));
+        () => new SqlConnection(configuration.GetConnectionString("IsolationPhenomena"));
     return new AlbumRepository(factory);
 }
 

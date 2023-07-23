@@ -1,7 +1,7 @@
 using System.Data;
 using System.Data.Common;
 
-namespace IsoLevelsAdoNet.Repos;
+namespace IsolationPhenomena.Repos;
 
 
 public class BaseRepository : IBaseRepository

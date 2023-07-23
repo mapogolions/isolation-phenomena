@@ -1,7 +1,7 @@
 using System.Data.Common;
-using IsoLevelsAdoNet.Models;
+using IsolationPhenomena.Models;
 
-namespace IsoLevelsAdoNet.Repos;
+namespace IsolationPhenomena.Repos;
 
 public interface IAlbumRepository : IBaseRepository
 {

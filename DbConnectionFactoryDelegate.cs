@@ -1,5 +1,5 @@
 using System.Data.Common;
 
-namespace IsoLevelsAdoNet;
+namespace IsolationPhenomena;
 
 public delegate DbConnection DbConnectionFactoryDelegate();

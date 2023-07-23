@@ -1,6 +1,6 @@
 using System.Data;
 
-namespace IsoLevelsAdoNet.Phenomena;
+namespace IsolationPhenomena.Phenomena;
 
 public interface IPhenomenon
 {

@@ -1,7 +1,7 @@
 using System.Data;
-using IsoLevelsAdoNet.Repos;
+using IsolationPhenomena.Repos;
 
-namespace IsoLevelsAdoNet.Phenomena;
+namespace IsolationPhenomena.Phenomena;
 
 public class NonRepeatableReadPhenomenon : IPhenomenon
 {

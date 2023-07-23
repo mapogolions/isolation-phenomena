@@ -1,9 +1,9 @@
 using System.Data;
 using System.Data.Common;
 using System.Data.SqlClient;
-using IsoLevelsAdoNet.Models;
+using IsolationPhenomena.Models;
 
-namespace IsoLevelsAdoNet.Repos;
+namespace IsolationPhenomena.Repos;
 
 
 public class AlbumRepository : BaseRepository, IAlbumRepository
