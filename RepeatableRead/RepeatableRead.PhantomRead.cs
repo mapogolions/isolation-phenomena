@@ -16,13 +16,13 @@ public partial class RepeatableRead
             var threadId = Thread.CurrentThread.ManagedThreadId;
             var t = _repo.TransactionScope(async (transaction, cancellation) =>
             {
-                var albums1 = await _repo.GetAsync(cancellation);
+                var albums1 = await _repo.GetAsync(transaction, cancellation);
                 Console.WriteLine($"[{threadId}] {string.Join(", ", albums1.Select(x => x.Id))}");
 
                 readSyncEvent.Set();
                 writeAsyncEvent.WaitOne();
 
-                var albums2 = await _repo.GetAsync(cancellation); // Phantom read
+                var albums2 = await _repo.GetAsync(transaction, cancellation); // Phantom read
                 Console.WriteLine($"[{threadId}] {string.Join(", ", albums2.Select(x => x.Id))}");
             }, IsolationLevel.RepeatableRead, cts.Token);
 
