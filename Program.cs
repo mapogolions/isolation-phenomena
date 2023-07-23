@@ -22,7 +22,8 @@ using Microsoft.Extensions.Configuration;
 {
     var sample = new RepeatableRead(BuildRepository());
     // sample.DeadLock();
-    sample.PreventNonRepetableRead();
+    // sample.PreventNonRepetableRead();
+    sample.PhantomRead();
 }
 
 

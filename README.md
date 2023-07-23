@@ -19,27 +19,23 @@ values
     ('Sarah Vaughan', 'Sarah Vaughan', 34.98)
 ```
 
-### Fix `Dirty Read` problem
+### Dirty Read (ReadUncommitted)
 ```
 {begin}             {begin}
-    read
     update
-                        read(block)
-    commit
-                        read(actual read happens here)
-
+                        read (DIRTY READ)
+    rollback
 {end}
 ```
 
-### Read Committed (Non Repetable Read)
+### Non Repeatable Read (ReadCommitted)
 
 ```
 {begin}             {begin}
     read
-                        read
+                        read (val_1)
     update
     commit
-{end}
-                        read // (NON REPETABLE READ) read1 and read2 are different
-                    {end}
+                        read (val_2) // (NON REPEATABLE READ) val_1 != val_2
+{end}               {end}
 ```
