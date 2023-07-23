@@ -4,11 +4,11 @@ using IsoLevelsAdoNet.Repos;
 
 namespace IsoLevelsAdoNet.Phenomena;
 
-public class PhantomReadPhenomen : IPhenomen
+public class PhantomReadPhenomenon : IPhenomenon
 {
     private readonly IAlbumRepository _repo;
 
-    public PhantomReadPhenomen(IAlbumRepository repo)
+    public PhantomReadPhenomenon(IAlbumRepository repo)
     {
         _repo = repo ?? throw new ArgumentNullException(nameof(repo));
     }

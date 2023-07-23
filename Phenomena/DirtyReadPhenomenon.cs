@@ -3,11 +3,11 @@ using IsoLevelsAdoNet.Repos;
 
 namespace IsoLevelsAdoNet.Phenomena;
 
-public class DirtyReadPhenomen : IPhenomen
+public class DirtyReadPhenomenon : IPhenomenon
 {
     private readonly IAlbumRepository _repo;
 
-    public DirtyReadPhenomen(IAlbumRepository repo)
+    public DirtyReadPhenomenon(IAlbumRepository repo)
     {
         _repo = repo ?? throw new ArgumentNullException(nameof(repo));;
     }

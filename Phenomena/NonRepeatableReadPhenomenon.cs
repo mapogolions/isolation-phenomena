@@ -3,11 +3,11 @@ using IsoLevelsAdoNet.Repos;
 
 namespace IsoLevelsAdoNet.Phenomena;
 
-public class NonRepeatableReadPhenomen : IPhenomen
+public class NonRepeatableReadPhenomenon : IPhenomenon
 {
     private readonly IAlbumRepository _repo;
 
-    public NonRepeatableReadPhenomen(IAlbumRepository repo)
+    public NonRepeatableReadPhenomenon(IAlbumRepository repo)
     {
         _repo = repo ?? throw new ArgumentNullException(nameof(repo));
     }
@@ -25,7 +25,6 @@ public class NonRepeatableReadPhenomen : IPhenomen
             {
                 // read
                 var album = await _repo.GetAsync(1, transaction, cts.Token);
-                Console.WriteLine($"[{containerId}] Read {album}");
 
                 // update
                 album!.Price += 0.01m;
@@ -49,14 +48,14 @@ public class NonRepeatableReadPhenomen : IPhenomen
             {
                 // read
                 var album1 = await _repo.GetAsync(1, transaction, cts.Token); // Result 1: NON REPEATABLE READ
-                Console.WriteLine($"[{containerId}] Read {album1}");
+                Console.WriteLine($"[{containerId}] Non Repeatable Read {album1}");
 
                 // use Timeout to prevent deadlock if iso is RepeableRead
                 readSyncEvent.WaitOne(TimeSpan.FromSeconds(5));
 
                 // read again
                 var album2 = await _repo.GetAsync(1, transaction, cts.Token); // Result 2: Result 1 != Result2
-                Console.WriteLine($"[{containerId}] Read {album2}");
+                Console.WriteLine($"[{containerId}] Read AGAIN {album2}");
             }, iso, cts.Token);
 
             t.GetAwaiter().GetResult();
