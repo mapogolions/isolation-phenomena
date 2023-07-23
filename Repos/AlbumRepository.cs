@@ -121,4 +121,23 @@ public class AlbumRepository : BaseRepository, IAlbumRepository
             return command.ExecuteNonQueryAsync(cancellationToken);
         }
     }
+
+    public Task<int> DeleteAsync(int id, CancellationToken cancellationToken)
+    {
+        return this.TransactionScope(
+            AutoCommit((transaction, cancellation) => DeleteAsync(id, transaction, cancellation)),
+            IsolationLevel.ReadCommitted,
+            cancellationToken);
+    }
+
+    public Task<int> DeleteAsync(int id, DbTransaction transaction, CancellationToken cancellationToken)
+    {
+        using (var command = transaction.Connection!.CreateCommand())
+        {
+            command.Transaction = transaction;
+            command.CommandText = "DELETE FROM Album WHERE Id = @Id";
+            command.Parameters.Add(new SqlParameter("@Id", id));
+            return command.ExecuteNonQueryAsync(cancellationToken);
+        }
+    }
 }

@@ -40,6 +40,7 @@ public partial class RepeatableRead
                 var album = new Album { Title = "Test", Artist = "Test", Price = 0.03m };
                 var added = await _repo.AddAsync(album, transaction, cancellation);
                 Console.WriteLine($"[{threadId}] {added} Album added");
+
                 await transaction.CommitAsync(cancellation);
                 Console.WriteLine($"[{threadId}] transaction committed");
 

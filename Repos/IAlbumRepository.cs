@@ -13,4 +13,6 @@ public interface IAlbumRepository : IBaseRepository
     Task<int> AddAsync(Album album, DbTransaction transaction, CancellationToken cancellationToken);
     Task<int> UpdateAsync(Album album, CancellationToken cancellationToken);
     Task<int> UpdateAsync(Album album, DbTransaction transaction, CancellationToken cancellationToken);
+    Task<int> DeleteAsync(int id, CancellationToken cancellationToken);
+    Task<int> DeleteAsync(int id, DbTransaction transaction, CancellationToken cancellationToken);
 }
