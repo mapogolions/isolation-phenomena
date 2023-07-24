@@ -19,7 +19,7 @@ public class NonRepeatableReadPhenomenon : IPhenomenon
 
         var t1 = new Thread(() =>
         {
-            var containerId = Thread.CurrentThread.ManagedThreadId;
+            var threadId = Thread.CurrentThread.ManagedThreadId;
 
             var t = _repo.TransactionScope(async (transaction, cancellation) =>
             {
@@ -29,11 +29,11 @@ public class NonRepeatableReadPhenomenon : IPhenomenon
                 // update
                 album!.Price += 0.01m;
                 var updated = await _repo.UpdateAsync(album, transaction, cts.Token);
-                Console.WriteLine($"[{containerId}] {updated} Album update");
+                Console.WriteLine($"[{threadId}] {updated} Album update");
 
                 // commit
                 await transaction.CommitAsync(cts.Token);
-                Console.WriteLine($"[{containerId}] transaction committed");
+                Console.WriteLine($"[{threadId}] transaction committed");
 
                 readSyncEvent.Set();
             }, iso, cts.Token);
@@ -43,19 +43,19 @@ public class NonRepeatableReadPhenomenon : IPhenomenon
 
         var t2 = new Thread(() =>
         {
-            var containerId = Thread.CurrentThread.ManagedThreadId;
+            var threadId = Thread.CurrentThread.ManagedThreadId;
             var t = _repo.TransactionScope(async (transaction, cancellation) =>
             {
                 // read
                 var album1 = await _repo.GetAsync(1, transaction, cts.Token); // Result 1: NON REPEATABLE READ
-                Console.WriteLine($"[{containerId}] Non Repeatable Read {album1}");
+                Console.WriteLine($"[{threadId}] Non Repeatable Read {album1}");
 
                 // use Timeout to prevent deadlock if iso is RepeableRead
                 readSyncEvent.WaitOne(TimeSpan.FromSeconds(5));
 
                 // read again
                 var album2 = await _repo.GetAsync(1, transaction, cts.Token); // Result 2: Result 1 != Result2
-                Console.WriteLine($"[{containerId}] Read AGAIN {album2}");
+                Console.WriteLine($"[{threadId}] Read AGAIN {album2}");
             }, iso, cts.Token);
 
             t.GetAwaiter().GetResult();
