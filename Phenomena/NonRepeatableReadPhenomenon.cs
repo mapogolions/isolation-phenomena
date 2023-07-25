@@ -31,11 +31,11 @@ public class NonRepeatableReadPhenomenon : IPhenomenon
                 var updated = await _repo.UpdateAsync(album, transaction, cts.Token);
                 Console.WriteLine($"[{threadId}] {updated} Album update");
 
+                readSyncEvent.Set();
+                await Task.Delay(TimeSpan.FromSeconds(2));
+
                 // commit
                 await transaction.CommitAsync(cts.Token);
-                Console.WriteLine($"[{threadId}] transaction committed");
-
-                readSyncEvent.Set();
             }, iso, cts.Token);
 
             t.GetAwaiter().GetResult();
@@ -48,14 +48,14 @@ public class NonRepeatableReadPhenomenon : IPhenomenon
             {
                 // read
                 var album1 = await _repo.GetAsync(1, transaction, cts.Token); // Result 1: NON REPEATABLE READ
-                Console.WriteLine($"[{threadId}] Non Repeatable Read {album1}");
+                Console.WriteLine($"[{threadId}] {album1}");
 
                 // use Timeout to prevent deadlock if iso is RepeableRead
-                readSyncEvent.WaitOne(TimeSpan.FromSeconds(5));
+                readSyncEvent.WaitOne(TimeSpan.FromSeconds(8));
 
                 // read again
                 var album2 = await _repo.GetAsync(1, transaction, cts.Token); // Result 2: Result 1 != Result2
-                Console.WriteLine($"[{threadId}] Read AGAIN {album2}");
+                Console.WriteLine($"[{threadId}] {album2}");
             }, iso, cts.Token);
 
             t.GetAwaiter().GetResult();
