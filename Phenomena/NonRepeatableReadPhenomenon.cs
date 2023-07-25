@@ -21,7 +21,7 @@ public class NonRepeatableReadPhenomenon : IPhenomenon
         {
             var threadId = Thread.CurrentThread.ManagedThreadId;
 
-            var t = _repo.TransactionScope(async (transaction, cancellation) =>
+            var t = _repo.TransactionScopeAsync(async (transaction, cancellation) =>
             {
                 // read
                 var album = await _repo.GetAsync(1, transaction, cts.Token);
@@ -44,7 +44,7 @@ public class NonRepeatableReadPhenomenon : IPhenomenon
         var t2 = new Thread(() =>
         {
             var threadId = Thread.CurrentThread.ManagedThreadId;
-            var t = _repo.TransactionScope(async (transaction, cancellation) =>
+            var t = _repo.TransactionScopeAsync(async (transaction, cancellation) =>
             {
                 // read
                 var album1 = await _repo.GetAsync(1, transaction, cts.Token); // Result 1: NON REPEATABLE READ

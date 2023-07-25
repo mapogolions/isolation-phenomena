@@ -22,7 +22,7 @@ public class PhantomReadPhenomenon : IPhenomenon
         var t1 = new Thread(() =>
         {
             var threadId = Thread.CurrentThread.ManagedThreadId;
-            _repo.TransactionScope(async (transaction, cancellation) =>
+            _repo.TransactionScopeAsync(async (transaction, cancellation) =>
             {
                 var total1 = await _repo.TotalCostAsync(transaction, cancellation);
                 Console.WriteLine($"[{threadId}] Total Cost: {total1}");
@@ -39,7 +39,7 @@ public class PhantomReadPhenomenon : IPhenomenon
         var t2 = new Thread(() =>
         {
             var threadId = Thread.CurrentThread.ManagedThreadId;
-            _repo.TransactionScope(async (transaction, cancellation) =>
+            _repo.TransactionScopeAsync(async (transaction, cancellation) =>
             {
                 readSyncEvent.WaitOne();
 

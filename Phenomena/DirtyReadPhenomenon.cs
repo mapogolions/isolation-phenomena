@@ -20,7 +20,7 @@ public class DirtyReadPhenomenon : IPhenomenon
         var t1 = new Thread(() =>
         {
             var threadId = Thread.CurrentThread.ManagedThreadId;
-            var t = _repo.TransactionScope(async (transaction, cancellation) =>
+            var t = _repo.TransactionScopeAsync(async (transaction, cancellation) =>
             {
                 var album = await _repo.GetAsync(1, transaction, cancellation);
                 Console.WriteLine($"[{threadId}] {album}");
@@ -41,7 +41,7 @@ public class DirtyReadPhenomenon : IPhenomenon
         var t2 = new Thread(() =>
         {
             var threadId = Thread.CurrentThread.ManagedThreadId;
-            var t = _repo.TransactionScope(async (transaction, cancellation) => {
+            var t = _repo.TransactionScopeAsync(async (transaction, cancellation) => {
                 readSyncEvent.WaitOne();
 
                 var album = await _repo.GetAsync(1, transaction, cancellation); // Dirty Read

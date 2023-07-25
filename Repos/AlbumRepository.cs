@@ -15,7 +15,7 @@ public class AlbumRepository : BaseRepository, IAlbumRepository
 
     public Task<Album?> GetAsync(int id, CancellationToken cancellationToken)
     {
-        return this.TransactionScope(
+        return this.TransactionScopeAsync(
             (transaction, cancellation) => GetAsync(id, transaction, cancellation),
             IsolationLevel.ReadCommitted,
             cancellationToken);
@@ -49,7 +49,7 @@ public class AlbumRepository : BaseRepository, IAlbumRepository
 
     public Task<IEnumerable<Album>> GetAsync(CancellationToken cancellationToken)
     {
-        return this.TransactionScope(GetAsync, IsolationLevel.ReadCommitted, cancellationToken);
+        return this.TransactionScopeAsync(GetAsync, IsolationLevel.ReadCommitted, cancellationToken);
     }
 
     public async Task<IEnumerable<Album>> GetAsync(DbTransaction transaction, CancellationToken cancellationToken)
@@ -81,7 +81,7 @@ public class AlbumRepository : BaseRepository, IAlbumRepository
 
     public Task<int> AddAsync(Album album, CancellationToken cancellationToken)
     {
-        return this.TransactionScope(
+        return this.TransactionScopeAsync(
             AutoCommit((transaction, cancellation) => AddAsync(album, transaction, cancellation)),
             IsolationLevel.ReadCommitted,
             cancellationToken);
@@ -102,7 +102,7 @@ public class AlbumRepository : BaseRepository, IAlbumRepository
 
     public Task<int> UpdateAsync(Album album, CancellationToken cancellationToken)
     {
-        return this.TransactionScope(
+        return this.TransactionScopeAsync(
             AutoCommit((transaction, cancellation) => UpdateAsync(album, transaction, cancellation)),
             IsolationLevel.ReadCommitted,
             cancellationToken);
@@ -124,7 +124,7 @@ public class AlbumRepository : BaseRepository, IAlbumRepository
 
     public Task<int> DeleteAsync(int id, CancellationToken cancellationToken)
     {
-        return this.TransactionScope(
+        return this.TransactionScopeAsync(
             AutoCommit((transaction, cancellation) => DeleteAsync(id, transaction, cancellation)),
             IsolationLevel.ReadCommitted,
             cancellationToken);
@@ -143,7 +143,7 @@ public class AlbumRepository : BaseRepository, IAlbumRepository
 
     public Task<decimal> TotalCostAsync(CancellationToken cancellationToken)
     {
-        return this.TransactionScope(
+        return this.TransactionScopeAsync(
             (transaction, cancellation) => TotalCostAsync(transaction, cancellation),
             IsolationLevel.ReadCommitted,
             cancellationToken);

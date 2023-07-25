@@ -13,7 +13,7 @@ public class BaseRepository : IBaseRepository
 
     protected DbConnectionFactoryDelegate ConnectionFactory { get; }
 
-    public async Task<T> TransactionScope<T>(
+    public async Task<T> TransactionScopeAsync<T>(
         Func<DbTransaction, CancellationToken, Task<T>> block,
         IsolationLevel iso,
         CancellationToken cancellationToken)
@@ -28,7 +28,7 @@ public class BaseRepository : IBaseRepository
         }
     }
 
-    public async Task TransactionScope(
+    public async Task TransactionScopeAsync(
         Func<DbTransaction, CancellationToken, Task> block,
         IsolationLevel iso,
         CancellationToken cancellationToken)
